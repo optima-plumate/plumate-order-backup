@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>梅侍 Plumate ｜ 訂購意向</title>
+  <meta name="description" content="梅侍 Plumate 訂購意向／洽詢。台灣純釀造梅酒，送出後由專人與您聯繫。" />
+  <meta name="theme-color" content="#20342b" />
+  <link rel="canonical" href="https://plumate-order.pages.dev/" />
+  <!-- LINE／社群分享時的預覽卡片 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="梅侍 Plumate" />
+  <meta property="og:title" content="梅侍 Plumate ｜ 訂購意向" />
+  <meta property="og:description" content="台灣純釀造梅酒。填寫您想要的商品，專人將盡快與您聯繫。" />
+  <meta property="og:url" content="https://plumate-order.pages.dev/" />
+  <meta property="og:image" content="https://plumate-order.pages.dev/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <!-- favicon：金底「梅」字 -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b08a44'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle' font-family='serif' fill='%23f6f1e6'%3E梅%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=23" />
+</head>
+<body>
+  <!-- 法規警語條（固定頂部） -->
+  <div class="warning-bar">未成年請勿飲酒｜飲酒過量有礙健康｜酒後不開車</div>
+
+  <!-- 年齡 gate -->
+  <div id="ageGate" class="age-gate" role="dialog" aria-modal="true" aria-labelledby="ageTitle">
+    <div class="age-card">
+      <div class="brand-mark">梅侍 <span>Plumate</span></div>
+      <h1 id="ageTitle" class="age-title">您是否已年滿 18 歲？</h1>
+      <p class="age-sub">本頁含酒類資訊，依法須確認您的年齡。</p>
+      <div class="age-actions">
+        <button id="ageYes" class="btn btn-primary">是，我已年滿 18 歲</button>
+        <button id="ageNo" class="btn btn-ghost">否</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年齡未達擋頁 -->
+  <div id="ageBlocked" class="age-gate hidden">
+    <div class="age-card">
+      <div class="brand-mark">梅侍 <span>Plumate</span></div>
+      <h1 class="age-title">很抱歉</h1>
+      <p class="age-sub">本服務僅提供年滿 18 歲之消費者。<br />未成年請勿飲酒。</p>
+    </div>
+  </div>
+
+  <main id="app" class="app hidden">
+    <!-- Hero -->
+    <header class="hero">
+      <img class="brand-logo" src="assets/logo.png?v=1" alt="梅侍 Plumate" />
+      <p class="tagline">沒事享受；享受梅侍</p>
+      <h1 class="hero-title">訂購意向單</h1>
+      <p class="hero-desc">
+        請填寫您想要的商品，<strong>專人將盡快與您聯繫</strong>確認優惠報價。
+      </p>
+      <p class="notice-pill">本頁為訂購意向／洽詢，非線上販售</p>
+    </header>
+
+    <!-- 主 banner 輪播（最多 3 張；換圖＝替換/增減 .bc-slide 的 img）。單張時自動不輪播 -->
+    <div class="banner-carousel" id="bannerCarousel" aria-label="梅侍活動與新品輪播">
+      <div class="bc-track">
+        <img class="bc-slide" src="assets/banner-giftset.jpg?v=1" alt="金銀茶韻禮盒｜東方美人茶 × 凍頂烏龍茶｜企業大宗採購・客製化禮盒" />
+        <img class="bc-slide" src="assets/banner-activity.jpg?v=1" alt="梅侍水果酒系列新品上市" />
+        <img class="bc-slide" src="assets/banner-awards2026.jpg?v=1" alt="梅侍榮獲 2026 國際酒類大賽獎牌" />
+      </div>
+      <div class="bc-dots" aria-hidden="true"></div>
+    </div>
+
+    <!-- 表單 -->
+    <form id="orderForm" class="form" novalidate>
+      <!-- honeypot：人類看不到，機器人會填 -->
+      <div class="hp" aria-hidden="true">
+        <label>公司 Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <div class="field">
+        <label for="name">姓名 <span class="req">必填</span></label>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="您的稱呼" required />
+      </div>
+
+      <div class="field">
+        <label for="phone">聯絡電話 <span class="req">必填</span></label>
+        <input type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel"
+               maxlength="20" placeholder="例：0912345678" required />
+        <small class="hint">方便專人與您聯繫，不另作他用。</small>
+      </div>
+
+      <div class="field">
+        <label for="line_name">Line 名稱 <span class="req">必填</span></label>
+        <input type="text" id="line_name" name="line_name" maxlength="50" placeholder="您的 LINE 顯示名稱" required />
+        <small class="hint">方便客服在官方 LINE 找到您、加快確認訂單。</small>
+      </div>
+
+      <div class="field" id="itemsField">
+        <label>想要的商品 <span class="req">必填</span></label>
+        <p class="items-tip">點分類展開，想要的品項直接調整數量（可跨類多選）</p>
+        <p class="items-tip catalog-link">
+          想多了解每款酒的風味與介紹？
+          <a href="https://www.plumate.com.tw/product" target="_blank" rel="noopener noreferrer">前往官網看完整商品 ↗</a>
+        </p>
+        <div id="catalog"><!-- JS 動態渲染 --></div>
+        <small id="itemsStatus" class="items-status" role="status" aria-live="polite"></small>
+        <div id="cartTotal" class="cart-total" aria-live="polite"></div>
+        <div id="giftPromo" class="gift-promo" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="pickup">取貨方式 <span class="opt">選填</span></label>
+        <select id="pickup" name="pickup">
+          <option value="">由專人與我確認</option>
+          <option value="headquarters">總部自取</option>
+          <option value="delivery">專人送貨</option>
+        </select>
+        <div id="pickupHint" class="pickup-hint" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="note">備註 <span class="opt">選填</span></label>
+        <textarea id="note" name="note" rows="3" placeholder="（若需紙袋請於門市提出，限大瓶 1:1）"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="birthday">生日 <span class="req">必填</span></label>
+        <div class="birthday-row">
+          <input type="text" id="birthday" name="birthday" inputmode="numeric" autocomplete="bday"
+                 placeholder="西元年/月/日，例：1990/03/15" maxlength="10" required />
+          <span class="birthday-cal-wrap">
+            <span class="birthday-cal" aria-hidden="true">📅</span>
+            <input type="date" id="birthdayPick" class="birthday-pick" aria-label="用日曆選擇生日" />
+          </span>
+        </div>
+        <small class="hint">可直接輸入數字（會自動補斜線），或點 📅 用日曆選擇</small>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="age" name="age_confirmed" required />
+        <span>我已年滿 18 歲，並同意接受聯繫</span>
+      </label>
+
+      <p id="formError" class="form-error" role="alert"></p>
+
+      <button type="submit" id="submitBtn" class="btn btn-primary btn-submit">送出訂購意向</button>
+
+      <p class="privacy">
+        您填寫的資料僅用於本次訂購聯繫，不作其他用途。<br />
+        本品牌不主張酒類具任何保健或療效。
+      </p>
+
+      <div class="line-cta">
+        <p class="line-cta-msg">送出後請<strong>務必加入官方 LINE</strong>，並留下姓名與電話，避免漏單</p>
+        <a class="line-btn" href="https://lin.ee/9vx41HN" target="_blank" rel="noopener noreferrer">加入官方 LINE ＠plumate</a>
+        <p class="line-cta-note">📦 若有<strong>大宗採購／客製化</strong>需求，請直接聯繫官方客服</p>
+      </div>
+    </form>
+  </main>
+
+  <!-- 成功頁 -->
+  <div id="success" class="success hidden">
+    <div class="success-card">
+      <div class="success-mark">✓</div>
+      <div class="brand-mark">梅侍 <span>Plumate</span></div>
+      <h1 class="success-title">已收到您的訂購意向</h1>
+      <p class="success-desc">專人將盡快與您聯繫，確認商品與優惠價。<br />感謝您選擇梅侍。</p>
+
+      <div class="line-cta">
+        <p class="line-cta-msg">請務必<strong>加入官方 LINE</strong>並留下姓名與電話，加快為您服務</p>
+        <img class="line-qr" src="line-qr.svg?v=1" alt="官方 LINE QR code" width="170" height="170" />
+        <a class="line-btn" href="https://lin.ee/9vx41HN" target="_blank" rel="noopener noreferrer">點我直接加入官方 LINE</a>
+        <p class="line-meta">＠plumate ｜ 線上客服 10:00–18:00（不含國定假日）</p>
+      </div>
+
+      <p class="success-meta" id="successId"></p>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p>梅侍 Plumate ｜ 奧提瑪股份有限公司</p>
+    <p class="foot-warn">未成年請勿飲酒｜飲酒過量有礙健康｜酒後不開車</p>
+  </footer>
+
+  <script src="app.js?v=28"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="0%" r="90%">
+      <stop offset="0%" stop-color="#efe6d2"/>
+      <stop offset="60%" stop-color="#f6f1e6"/>
+      <stop offset="100%" stop-color="#f6f1e6"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect x="40" y="40" width="1120" height="550" rx="28" fill="none" stroke="#e3dccc" stroke-width="2"/>
+
+  <text x="600" y="250" text-anchor="middle" font-family="serif" font-weight="700" font-size="96" fill="#20342b" letter-spacing="14">梅侍</text>
+  <text x="600" y="312" text-anchor="middle" font-family="serif" font-size="40" fill="#b08a44" letter-spacing="16">PLUMATE</text>
+
+  <line x1="540" y1="360" x2="660" y2="360" stroke="#b08a44" stroke-width="3"/>
+
+  <text x="600" y="430" text-anchor="middle" font-family="serif" font-weight="500" font-size="52" fill="#20342b" letter-spacing="6">訂購意向單</text>
+  <text x="600" y="486" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#6f6a5d" letter-spacing="4">台灣純釀造梅酒 ｜ 專人為您服務</text>
+
+  <text x="600" y="556" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#9a968b" letter-spacing="2">未成年請勿飲酒　飲酒過量有礙健康　酒後不開車</text>
+</svg>
