@@ -362,6 +362,17 @@ textarea { resize: vertical; }
 .cr-name { font-size: 15px; }
 .cr-price { font-size: 13px; margin-top: 3px; }
 .cr-price:empty { display: none; }
+.stock-notice {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 1px 8px;
+  vertical-align: middle;
+}
 
 .fixed6-box {
   background: rgba(176, 138, 68, .06);
@@ -370,6 +381,12 @@ textarea { resize: vertical; }
   padding: 10px 12px;
   margin: 4px 0 10px;
 }
+/* 口味2選1禮盒：盒卡標頭 + 內含小面板（口味列沿用 .catalog-row） */
+.flavor-box { padding: 11px 0; border-bottom: 1px dashed var(--line); }
+.flavor-box:last-child { border-bottom: none; }
+.flavor-box-head { display: flex; align-items: center; gap: 12px; }
+.flavor-box .fixed6-box { margin-top: 8px; margin-bottom: 0; }
+.flavor-box .catalog-row { padding: 8px 0; }
 .mix-block { padding-top: 10px; }
 .mix-block-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
 .mix-price { color: var(--gold-deep); font-size: 13px; margin-left: 8px; }
@@ -415,12 +432,29 @@ textarea { resize: vertical; }
 .gift-promo:empty { display: none; }
 .gift-promo { margin-top: 14px; padding: 12px 14px; background: #fbf3e3; border: 1px solid #ecdcb6; border-radius: 12px; font-size: 13.5px; line-height: 1.7; color: var(--ink-green); }
 .gp-title { font-weight: 700; color: var(--gold-deep); margin-bottom: 4px; }
-.gp-tier { color: #6b6457; }
+.gp-tier { color: #6b6457; display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+.gp-tier-txt { flex: 1; min-width: 0; }
 .gp-tier.hit { color: #06863e; font-weight: 700; }
-.gp-tier.superseded { color: #b8b2a4; text-decoration: line-through; }
+.gp-tier.superseded .gp-tier-txt { color: #b8b2a4; text-decoration: line-through; }
+.gp-tier.superseded .gp-thumb { opacity: 0.5; }
 .gp-tier.superseded b { color: #b8b2a4; }
 .gp-tier b { color: var(--gold-deep); }
 .gp-tier.hit b { color: #06863e; }
+.gp-note { color: var(--clay); font-weight: 400; font-size: 12px; }
+/* 贈品縮圖（點擊放大） */
+.gp-thumb { flex: 0 0 auto; width: 54px; height: 54px; padding: 3px; background: #fff; border: 1px solid #ecdcb6; border-radius: 8px; position: relative; cursor: zoom-in; overflow: hidden; }
+.gp-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.gp-zoom { position: absolute; right: 1px; bottom: 1px; font-size: 10px; line-height: 1; padding: 1px 2px; background: rgba(255,255,255,0.85); border-radius: 4px; }
+/* 禮盒商品圖（置於每盒最前面，點擊放大） */
+.box-photo { display: block; width: 100%; max-width: 420px; margin: 4px auto 12px; padding: 0; border: 0; background: none; border-radius: 12px; position: relative; cursor: zoom-in; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.box-photo img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.box-photo .gp-zoom { right: 8px; bottom: 8px; font-size: 13px; padding: 2px 5px; }
+/* 放大檢視遮罩 */
+.gift-lightbox { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,0.82); cursor: zoom-out; }
+.glb-fig { margin: 0; max-width: 92vw; max-height: 88vh; text-align: center; }
+.glb-fig img { max-width: 100%; max-height: 78vh; background: #fff; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+.glb-fig figcaption { color: #fff; margin-top: 12px; font-size: 14px; }
+.glb-close { position: absolute; top: 12px; right: 16px; width: 40px; height: 40px; font-size: 30px; line-height: 1; color: #fff; background: none; border: none; cursor: pointer; }
 .gp-tip { margin-top: 5px; padding-top: 6px; border-top: 1px dashed #ecdcb6; color: var(--clay); }
 .gp-tip b { color: #b4502f; }
 .items-status {

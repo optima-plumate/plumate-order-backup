@@ -11,6 +11,55 @@ const BACKUP_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSehuzBLO9xzw8a
 const GROUP = new URLSearchParams(location.search).get("g");
 let groupHost = null; // { slug, name, open_at, close_at, status } 由後端回傳
 
+/* ---------- 廣告來源歸因（UTM 全程保留） ---------- */
+// 進站首觸抓 utm_*／點擊 ID，寫入 sessionStorage；之後站內跳轉洗掉網址 query 也讀得回來。
+// 採「首觸不覆寫」（已存有值就不蓋），避免站內跳轉把來源洗成空。
+const ATTR_KEY = "plumate_attr";
+const ATTR_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid"];
+function getAttribution() {
+  try { return JSON.parse(sessionStorage.getItem(ATTR_KEY) || "{}"); } catch (_) { return {}; }
+}
+function captureAttribution() {
+  const stored = getAttribution();
+  const qs = new URLSearchParams(location.search);
+  let changed = false;
+  for (const k of ATTR_FIELDS) {
+    const v = qs.get(k);
+    if (v && !stored[k]) { stored[k] = String(v).slice(0, 200); changed = true; } // 首觸不覆寫
+  }
+  if (!stored.landing_page) { stored.landing_page = (location.pathname + location.search).slice(0, 500); changed = true; }
+  if (changed) { try { sessionStorage.setItem(ATTR_KEY, JSON.stringify(stored)); } catch (_) {} }
+  return stored;
+}
+// 把保留的 UTM 附加到站內跳轉網址（解 §1.3：導頁不再洗掉來源）；已帶的參數不覆寫
+function withAttribution(url) {
+  try {
+    const attr = getAttribution();
+    const u = new URL(url, location.href);
+    for (const k of ATTR_FIELDS) {
+      if (attr[k] && !u.searchParams.has(k)) u.searchParams.set(k, attr[k]);
+    }
+    return u.toString();
+  } catch (_) { return url; }
+}
+// 「表單送出成功」轉換事件；追蹤碼未載入（被擋/DEV）時安靜跳過，不影響送單
+function trackLead(leadId) {
+  // Meta Pixel Lead（🔴 必須在下面 gtag 的 early return 之前，否則 GA4 被擋時 Lead 也跟著不發）
+  try { if (typeof fbq === "function") fbq("track", "Lead"); } catch (_) {}
+  if (typeof gtag !== "function") return;
+  const attr = getAttribution();
+  gtag("event", "generate_lead", {
+    utm_source: attr.utm_source || "(direct)",
+    utm_medium: attr.utm_medium || "(none)",
+    utm_campaign: attr.utm_campaign || "(none)",
+    utm_content: attr.utm_content || "",
+    utm_term: attr.utm_term || "",
+    lead_id: leadId || "",
+    group: GROUP || "organic",
+  });
+}
+captureAttribution(); // 進站即首觸紀錄
+
 const $ = (sel) => document.querySelector(sel);
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) =>
@@ -20,6 +69,13 @@ const money = (n) => "$" + Number(n).toLocaleString("en-US");
 
 // { large:[{name,spec,po,pd}], small:[...], boxes:[{name,kind,po,pd,contents?,label?}] }
 let products = { promos: [], large: [], small: [], boxes: [] };
+
+// 暫時缺貨公告（僅前端顯示用；商品仍可下單，不影響送單與計價）
+// 用完/補貨後記得移除，否則會一直顯示過期日期
+const STOCK_NOTICES = [
+];
+const stockNotice = (name, spec) =>
+  STOCK_NOTICES.find((s) => s.name === name && s.spec === spec)?.badge || null;
 
 /* ---------- 年齡 gate ---------- */
 $("#ageYes").addEventListener("click", () => {
@@ -31,6 +87,28 @@ $("#ageNo").addEventListener("click", () => {
   $("#ageGate").classList.add("hidden");
   $("#ageBlocked").classList.remove("hidden");
 });
+
+/* ---------- 贈品照片放大（滿額活動縮圖點擊） ---------- */
+function openGiftLightbox(src, cap) {
+  const box = $("#giftLightbox");
+  if (!box) return;
+  $("#glbImg").src = src;
+  $("#glbImg").alt = cap || "";
+  $("#glbCap").textContent = cap || "";
+  box.classList.remove("hidden");
+}
+function closeGiftLightbox() {
+  const box = $("#giftLightbox");
+  if (!box) return;
+  box.classList.add("hidden");
+  $("#glbImg").src = "";
+}
+document.addEventListener("click", (e) => {
+  const thumb = e.target.closest(".gp-thumb, .box-photo");
+  if (thumb) { openGiftLightbox(thumb.dataset.full, thumb.dataset.cap); return; }
+  if (e.target.closest("#giftLightbox")) closeGiftLightbox(); // 點遮罩或關閉鈕都收起
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeGiftLightbox(); });
 
 /* ---------- 載入商品 ---------- */
 function setItemsStatus(msg, kind = "") {
@@ -109,9 +187,49 @@ function stepperHTML(extraClass = "", attrs = "", max = 999) {
 function bottleRow(b, specLabel, showSpec) {
   const base = showSpec ? `${b.name}（${b.spec}）` : b.name;
   const nm = base + (b.medals ? ` ${b.medals}` : "");
+  const notice = stockNotice(b.name, b.spec);
+  const noticeHTML = notice ? ` <span class="stock-notice">${esc(notice)}</span>` : "";
   return `<div class="catalog-row" data-kind="bottle" data-name="${esc(b.name)}" data-spec="${esc(specLabel)}" data-pd="${b.pd ?? ""}">
-    <div class="cr-info"><div class="cr-name">${esc(nm)}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
+    <div class="cr-info"><div class="cr-name">${esc(nm)}${noticeHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
     ${stepperHTML()}
+  </div>`;
+}
+
+// 禮盒商品圖（key＝商品主檔 name；清掉某列就不顯示該盒的圖）。點圖沿用滿額贈的放大燈箱。
+const BOX_IMAGES = {
+  "中秋《奔馬》典藏禮盒": "assets/box-benma.jpg?v=1",
+  "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
+  "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1",
+};
+// 大圖（整張置頂）——最新活動用
+function boxPhotoHTML(name) {
+  const img = BOX_IMAGES[name];
+  if (!img) return "";
+  return `<button type="button" class="box-photo" data-full="${esc(img)}" data-cap="${esc(name)}" aria-label="放大看${esc(name)}商品圖"><img src="${esc(img)}" alt="${esc(name)}" loading="lazy" /><span class="gp-zoom" aria-hidden="true">🔍</span></button>`;
+}
+// 小縮圖（靠左，沿用滿額贈 .gp-thumb 樣式）——禮盒組用
+function boxThumbHTML(name) {
+  const img = BOX_IMAGES[name];
+  if (!img) return "";
+  return `<button type="button" class="gp-thumb" data-full="${esc(img)}" data-cap="${esc(name)}" aria-label="放大看${esc(name)}商品圖"><img src="${esc(img)}" alt="${esc(name)}" loading="lazy" /><span class="gp-zoom" aria-hidden="true">🔍</span></button>`;
+}
+
+// 口味2選1禮盒：一張盒卡 + 每口味各自數量鈕。每個口味列本身即標準 .catalog-row（帶 data-flavor），
+// 故購物車小計／已選徽章／驗證全部沿用現有機制；唯一特別處是收單時多帶 flavor（見 collectItems）。
+function flavorBoxHTML(b, label, saveHTML, photo = "", headThumb = "") {
+  const rows = b.flavors
+    .map(
+      (fv) => `<div class="catalog-row flavor-row" data-kind="box" data-name="${esc(label)}" data-flavor="${esc(fv)}" data-spec="" data-pd="${b.pd ?? ""}">
+        <div class="cr-info"><div class="cr-name">・${esc(fv)}款</div></div>
+        ${stepperHTML()}
+      </div>`,
+    )
+    .join("");
+  const desc = b.desc ? `<div class="box-desc"><b>內含：</b>${esc(b.desc)}</div>` : "";
+  return `<div class="flavor-box">
+    ${photo}
+    <div class="flavor-box-head">${headThumb}<div class="cr-info"><div class="cr-name">${esc(label)}${saveHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div></div>
+    <div class="fixed6-box">${desc}<div class="mix-hint">請選擇口味（可分別填數量）</div>${rows}</div>
   </div>`;
 }
 
@@ -122,9 +240,13 @@ function boxRows() {
       html += mixBoxBlock();
       continue;
     }
+    if (b.flavors && b.flavors.length) {
+      html += flavorBoxHTML(b, b.label || b.name, "", "", boxThumbHTML(b.name));
+      continue;
+    }
     const label = b.label || b.name;
     html += `<div class="catalog-row" data-kind="box" data-name="${esc(label)}" data-spec="" data-pd="${b.pd ?? ""}">
-      <div class="cr-info"><div class="cr-name">${esc(label)}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
+      ${boxThumbHTML(b.name)}<div class="cr-info"><div class="cr-name">${esc(label)}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
       ${stepperHTML()}
     </div>`;
     if (b.kind === "fixed6" && (b.contents || []).length)
@@ -137,16 +259,28 @@ function boxRows() {
   return html;
 }
 
-// 最新活動（組合）：比照獲獎組，固定內容唯讀 + 數量鈕
+// 最新活動：本檔期主打（禮盒／獲獎組），內含照禮盒組原樣顯示 + 立省 + 數量鈕
 function promoRows() {
   let html = "";
   for (const b of products.promos) {
+    const label = b.label || b.name;
     const save = b.po && b.pd ? ` <span class="combo-save">立省 ${money(b.po - b.pd)}</span>` : "";
-    html += `<div class="catalog-row" data-kind="box" data-name="${esc(b.name)}" data-spec="" data-pd="${b.pd ?? ""}">
-      <div class="cr-info"><div class="cr-name">${esc(b.name)}${save}</div><div class="cr-price">${priceInline(b.po, b.pd)} <span class="combo-freeship">免運</span></div></div>
+    if (b.flavors && b.flavors.length) {
+      html += flavorBoxHTML(b, label, save, boxPhotoHTML(b.name));
+      continue;
+    }
+    html += boxPhotoHTML(b.name);
+    html += `<div class="catalog-row" data-kind="box" data-name="${esc(label)}" data-spec="" data-pd="${b.pd ?? ""}">
+      <div class="cr-info"><div class="cr-name">${esc(label)}${save}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
       ${stepperHTML()}
     </div>`;
-    if ((b.contents || []).length)
+    if (b.kind === "fixed6" && (b.contents || []).length)
+      html += `<div class="fixed6-box"><div class="mix-hint">固定內含以下 6 款（不可更換）</div>${b.contents
+        .map((n) => `<div class="fixed6-row">・${esc(n)}</div>`)
+        .join("")}<div class="gift-line">🎁 加贈專屬提盒</div></div>`;
+    else if (b.desc)
+      html += `<div class="fixed6-box"><div class="box-desc"><b>內含：</b>${esc(b.desc)}</div></div>`;
+    else if ((b.contents || []).length)
       html += `<div class="fixed6-box"><div class="mix-hint">固定內含以下 ${b.contents.length} 款（不可更換）</div>${b.contents
         .map((n) => `<div class="fixed6-row">・${esc(n)}</div>`)
         .join("")}</div>`;
@@ -154,11 +288,12 @@ function promoRows() {
   return html;
 }
 
-// 滿額贈設定（每月更新此處即可；清空 GIFT_TIERS 就不顯示）
-const GIFT_MONTH = "7月";
+// 滿額贈設定（清空 GIFT_TIERS 就不顯示；標題固定「滿額活動」不放月份）
+const GIFT_MONTH = "";
 const GIFT_TIERS = [
-  { min: 3000, gift: "梅侍質感梅酒杯（375ml）" },
-  { min: 5000, gift: "梅侍可愛小樣組（50ml×4瓶）" },
+  { min: 3000, gift: "梅侍質感梅酒杯（375ml）", img: "assets/gift-cup.png?v=1" },
+  { min: 5000, gift: "梅侍小樣組（50ml×4瓶）", img: "assets/gift-mini4.jpg?v=1", note: "口味隨機出貨" },
+  { min: 10000, gift: "長流美術館｜徐悲鴻聯名 典藏款茶梅酒 700ml×1", img: "assets/gift-xubeihong.png?v=1", note: "東方美人/凍頂烏龍 2種口味隨機出貨" },
 ];
 function updateGiftPromo(amt) {
   const el = $("#giftPromo");
@@ -170,7 +305,11 @@ function updateGiftPromo(amt) {
     let icon = "🎁", cls = "";
     if (i === reachedIdx) { icon = "✅"; cls = " hit"; }
     else if (i < reachedIdx) { icon = "▫"; cls = " superseded"; }
-    return `<div class="gp-tier${cls}">${icon} 滿 <b>${money(t.min)}</b> 送 ${esc(t.gift)}</div>`;
+    const note = t.note ? ` <span class="gp-note">（${esc(t.note)}）</span>` : "";
+    const thumb = t.img
+      ? `<button type="button" class="gp-thumb" data-full="${esc(t.img)}" data-cap="${esc(t.gift)}" aria-label="放大看${esc(t.gift)}"><img src="${esc(t.img)}" alt="${esc(t.gift)}" loading="lazy" /><span class="gp-zoom" aria-hidden="true">🔍</span></button>`
+      : "";
+    return `<div class="gp-tier${cls}">${thumb}<span class="gp-tier-txt">${icon} 滿 <b>${money(t.min)}</b> 送 ${esc(t.gift)}${note}</span></div>`;
   }).join("");
   const next = GIFT_TIERS.find((t) => amt < t.min);
   let tip = "";
@@ -181,7 +320,7 @@ function updateGiftPromo(amt) {
   } else {
     tip = `<div class="gp-tip">🎉 已達最高滿額贈「${esc(GIFT_TIERS[reachedIdx].gift)}」，將隨單附上！</div>`;
   }
-  el.innerHTML = `<div class="gp-title">🎁 ${GIFT_MONTH}滿額贈（活動不累贈）</div>${tiers}${tip}`;
+  el.innerHTML = `<div class="gp-title">🎁 滿額活動（活動不累贈）</div>${tiers}${tip}`;
 }
 
 const mixFlavors = () => products.small.filter((b) => b.spec === "250ml");
@@ -234,7 +373,7 @@ function buildCatalog() {
     (products.promos.length ? sec("promos", "🎉 最新活動", promoRows()) : "") +
     sec("large", "大瓶 700ml", products.large.map((b) => bottleRow(b, "700ml", false)).join("")) +
     sec("small", "小瓶 250ml／300ml", products.small.map((b) => bottleRow(b, b.spec + "散裝", true)).join("")) +
-    sec("box", "禮盒組", boxRows());
+    sec("box", "🥮 禮盒組_中秋超熱賣", boxRows());
   updateCartTotal();
   updateCatBadges();
 }
@@ -266,7 +405,7 @@ function applyGroupUI() {
       `<div class="gb-sub">純意向收集 ｜ 開團至 ${esc(closeStr)} 止</div>`;
     document.title = `${host.name} 團購意向單｜梅侍 Plumate`;
   } else {
-    const officialBtn = `<a class="gb-cta" href="https://plumate-order.pages.dev/">前往官網訂購單 →</a>`;
+    const officialBtn = `<a class="gb-cta" href="${withAttribution("https://plumate-order.pages.dev/")}">前往官網訂購單 →</a>`;
     let msg, cta = "";
     if (host.status === "upcoming") {
       msg = `本團將於 ${esc(fmtMD(host.open_at))} 開團，敬請期待`;
@@ -438,7 +577,13 @@ $bd.addEventListener("input", () => {
 function collectItems() {
   const items = [];
   eachBottleBox((row, qty) => {
-    if (qty > 0) items.push({ name: row.dataset.name, spec: row.dataset.spec || null, qty });
+    if (qty > 0)
+      items.push({
+        name: row.dataset.name,
+        spec: row.dataset.spec || null,
+        qty,
+        ...(row.dataset.flavor ? { flavor: row.dataset.flavor } : {}),
+      });
   });
   document.querySelectorAll("#catalog .mix-panel").forEach((panel) => {
     const contents = [...panel.querySelectorAll(".qty-input")]
@@ -516,6 +661,7 @@ $("#orderForm").addEventListener("submit", async (e) => {
     return;
   }
 
+  const attr = getAttribution();
   const payload = {
     name,
     phone,
@@ -527,6 +673,15 @@ $("#orderForm").addEventListener("submit", async (e) => {
     age_confirmed: ageConfirmed,
     host_slug: GROUP || null,
     company: $('input[name="company"]').value,
+    // 廣告來源歸因（無則為 null，後端全欄 nullable）
+    utm_source: attr.utm_source || null,
+    utm_medium: attr.utm_medium || null,
+    utm_campaign: attr.utm_campaign || null,
+    utm_content: attr.utm_content || null,
+    utm_term: attr.utm_term || null,
+    fbclid: attr.fbclid || null,
+    gclid: attr.gclid || null,
+    landing_page: attr.landing_page || null,
   };
 
   const btn = $("#submitBtn");
@@ -547,6 +702,7 @@ $("#orderForm").addEventListener("submit", async (e) => {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "送出失敗");
+    trackLead(data.id); // GA4 轉換事件（帶 UTM）
     showSuccess(data.id ? `訂購意向編號：#${data.id}` : "");
   } catch (e2) {
     showError(e2.message || "送出失敗，請稍後再試");
@@ -583,7 +739,7 @@ function onFieldFix(e) {
 
 // 取貨方式：依選擇顯示對應說明（運費以文字呈現，不計入金額）
 const PICKUP_HINTS = {
-  "": `送出後，專人將透過官方 LINE ＠plumate 與您聯繫，確認取貨與寄送方式。請務必<a href="https://lin.ee/9vx41HN" target="_blank" rel="noopener noreferrer">加入官方 LINE</a>。<br><span class="pickup-sub">官方 LINE 客服時間 10:00–18:00</span>`,
+  "": `送出後，請務必<a href="https://lin.ee/9vx41HN" target="_blank" rel="noopener noreferrer">加入官方 LINE ＠plumate</a>。專人將透過官方 LINE 與您確認取貨與寄送方式。<br>・若需要專人送貨服務，收 <b>$130</b> 送貨服務費，需出示相關證明文件<br>・單筆滿 <b>$3,000</b> 可免收服務費<br><span class="pickup-sub">官方 LINE 客服時間 10:00–18:00</span>`,
   headquarters: `🏢 總公司：<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("台北市中山區松江路431巷25號1樓")}" target="_blank" rel="noopener noreferrer">台北市中山區松江路 431 巷 25 號 1 樓</a><br>☎ <a href="tel:0225077999">02-2507-7999</a>　（自取免運費）<br>🕙 營業時間：10:00–18:00（國定例假日休息）`,
   delivery: `・若需要專人送貨服務，收 <b>$130</b> 送貨服務費，需出示相關證明文件<br>・單筆滿 <b>$3,000</b> 可免收服務費`,
 };

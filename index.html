@@ -6,6 +6,27 @@
   <title>梅侍 Plumate ｜ 訂購意向</title>
   <meta name="description" content="梅侍 Plumate 訂購意向／洽詢。台灣純釀造梅酒，送出後由專人與您聯繫。" />
   <meta name="theme-color" content="#20342b" />
+  <!-- Google Analytics 4（梅侍官網同一顆 property，用於廣告歸因；送出成功發 generate_lead） -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1XB3ZDTES5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1XB3ZDTES5');
+  </script>
+  <!-- Meta Pixel（梅侍官網同一顆 6637083949752831，共用再行銷受眾）；送出成功時另發 Lead 事件，見 app.js trackLead() -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '6637083949752831');
+    fbq('track', 'PageView');
+  </script>
   <link rel="canonical" href="https://plumate-order.pages.dev/" />
   <!-- LINE／社群分享時的預覽卡片 -->
   <meta property="og:type" content="website" />
@@ -22,7 +43,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=23" />
+  <link rel="stylesheet" href="styles.css?v=25" />
 </head>
 <body>
   <!-- 法規警語條（固定頂部） -->
@@ -50,6 +71,15 @@
     </div>
   </div>
 
+  <!-- 贈品照片放大檢視（滿額活動縮圖點擊開啟）；點任意處收起 -->
+  <div id="giftLightbox" class="gift-lightbox hidden">
+    <button type="button" class="glb-close" aria-label="關閉">×</button>
+    <figure class="glb-fig">
+      <img id="glbImg" src="" alt="" />
+      <figcaption id="glbCap"></figcaption>
+    </figure>
+  </div>
+
   <main id="app" class="app hidden">
     <!-- Hero -->
     <header class="hero">
@@ -63,11 +93,15 @@
     </header>
 
     <!-- 主 banner 輪播（最多 3 張；換圖＝替換/增減 .bc-slide 的 img）。單張時自動不輪播 -->
+    <!-- 🔴 中秋檔期輪播（~2026/9 結束）：中秋《奔馬》典藏禮盒 + 2026 ISC 1金3銀獲獎；9 月後檔期結束再調整。中秋茶韻禮盒已售完下架（2026-09-14），slide 移除 -->
     <div class="banner-carousel" id="bannerCarousel" aria-label="梅侍活動與新品輪播">
       <div class="bc-track">
-        <img class="bc-slide" src="assets/banner-giftset.jpg?v=1" alt="金銀茶韻禮盒｜東方美人茶 × 凍頂烏龍茶｜企業大宗採購・客製化禮盒" />
+        <img class="bc-slide" src="assets/banner-benma.jpg?v=1" alt="中秋《奔馬》典藏禮盒｜長流美術館 × 徐悲鴻聯名茶梅酒｜東方美人 or 凍頂烏龍｜限量1200盒 送禮首選" />
+        <img class="bc-slide" src="assets/banner-awards2608.jpg?v=2" alt="梅侍榮獲 2026 ISC 國際烈酒競賽 1金3銀｜紅烏龍茶梅酒金牌，碧螺春綠茶・荔枝・玫瑰鹽紅柚梅酒銀牌" />
+        <!-- 舊素材（暫停使用）：
         <img class="bc-slide" src="assets/banner-activity.jpg?v=1" alt="梅侍水果酒系列新品上市" />
         <img class="bc-slide" src="assets/banner-awards2026.jpg?v=1" alt="梅侍榮獲 2026 國際酒類大賽獎牌" />
+        -->
       </div>
       <div class="bc-dots" aria-hidden="true"></div>
     </div>
@@ -184,6 +218,6 @@
     <p class="foot-warn">未成年請勿飲酒｜飲酒過量有礙健康｜酒後不開車</p>
   </footer>
 
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>
