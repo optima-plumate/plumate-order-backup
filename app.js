@@ -197,6 +197,7 @@ function bottleRow(b, specLabel, showSpec) {
 
 // 禮盒商品圖（key＝商品主檔 name；清掉某列就不顯示該盒的圖）。點圖沿用滿額贈的放大燈箱。
 const BOX_IMAGES = {
+  "中秋金銀禮盒": "assets/box-jinyin.jpg?v=1",
   "中秋《奔馬》典藏禮盒": "assets/box-benma.jpg?v=1",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
   "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1",
