@@ -703,8 +703,10 @@ $("#orderForm").addEventListener("submit", async (e) => {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "送出失敗");
-    trackLead(data.id); // GA4 轉換事件（帶 UTM）
-    showSuccess(data.id ? `訂購意向編號：#${data.id}` : "");
+    trackLead(data.id); // GA4 轉換事件（帶 UTM，用內部 id 追蹤）
+    // 顯示單號一律用 order_no（與 LINE 通知/Sheet 同號）；缺時退回 id 兜底
+    const displayNo = data.order_no ?? data.id;
+    showSuccess(displayNo ? `訂購意向編號：#${displayNo}` : "");
   } catch (e2) {
     showError(e2.message || "送出失敗，請稍後再試");
     btn.disabled = false;
