@@ -197,8 +197,9 @@ function bottleRow(b, specLabel, showSpec) {
 
 // 禮盒商品圖（key＝商品主檔 name；清掉某列就不顯示該盒的圖）。點圖沿用滿額贈的放大燈箱。
 const BOX_IMAGES = {
-  "中秋金銀禮盒": "assets/box-jinyin.jpg?v=1",
-  "中秋《奔馬》典藏禮盒": "assets/box-benma.jpg?v=1",
+  "馬到成功禮盒": "assets/banner-madao-2609.jpg?v=1",
+  "《奔馬》典藏禮盒": "assets/banner-benma-2609.jpg?v=1",
+  "紅烏龍茶梅酒（700ml）": "assets/promo-hongwulong.jpg?v=1",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
   "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1",
 };
@@ -374,7 +375,7 @@ function buildCatalog() {
     (products.promos.length ? sec("promos", "🎉 最新活動", promoRows()) : "") +
     sec("large", "大瓶 700ml", products.large.map((b) => bottleRow(b, "700ml", false)).join("")) +
     sec("small", "小瓶 250ml／300ml", products.small.map((b) => bottleRow(b, b.spec + "散裝", true)).join("")) +
-    sec("box", "🥮 禮盒組_中秋超熱賣", boxRows());
+    sec("box", "禮盒組", boxRows());
   updateCartTotal();
   updateCatBadges();
 }
