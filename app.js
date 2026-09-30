@@ -293,9 +293,9 @@ function promoRows() {
 // 滿額贈設定（清空 GIFT_TIERS 就不顯示；標題固定「滿額活動」不放月份）
 const GIFT_MONTH = "";
 const GIFT_TIERS = [
-  { min: 3000, gift: "梅侍質感梅酒杯（375ml）", img: "assets/gift-cup.png?v=1" },
-  { min: 5000, gift: "梅侍小樣組（50ml×4瓶）", img: "assets/gift-mini4.jpg?v=1", note: "口味隨機出貨" },
-  { min: 10000, gift: "長流美術館｜徐悲鴻聯名 典藏款茶梅酒 700ml×1", img: "assets/gift-xubeihong.png?v=1", note: "東方美人/凍頂烏龍 2種口味隨機出貨" },
+  { min: 3000, gift: "醋覓雙果醋氣泡飲（330ml×3瓶）", img: "assets/gift-chillme.png?v=1", note: "3 口味各 1 瓶" },
+  { min: 5000, gift: "香米梅酒（250ml×1瓶）", img: "assets/gift-ricewine.png?v=1" },
+  { min: 10000, gift: "長流美術館｜徐悲鴻聯名 典藏款梅酒 700ml×1", img: "assets/gift-xubeihong.png?v=1", note: "東方美人/凍頂烏龍 2種口味隨機出貨" },
 ];
 function updateGiftPromo(amt) {
   const el = $("#giftPromo");
