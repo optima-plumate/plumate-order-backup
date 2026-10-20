@@ -201,7 +201,7 @@ const BOX_IMAGES = {
   "《奔馬》典藏禮盒": "assets/banner-benma-2609.jpg?v=1",
   "紅烏龍茶梅酒（700ml）": "assets/promo-hongwulong.jpg?v=2",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
-  "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1",
+  "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1", // 暫售 v3；賣完換回 "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1"
 };
 // 大圖（整張置頂）——最新活動用
 function boxPhotoHTML(name) {
