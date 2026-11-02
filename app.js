@@ -137,7 +137,7 @@ async function loadProducts() {
   if (DEV) showDevBanner();
 
   if (usable(data)) {
-    products = { promos: data.promos || [], large: data.large || [], small: data.small || [], boxes: data.boxes || [] };
+    products = { promos: data.promos || [], large: data.large || [], small: data.small || [], boxes: data.boxes || [], addon: data.addon || null };
     groupHost = data.host || (GROUP ? { slug: GROUP, status: "invalid" } : null);
     setItemsStatus("");
     buildCatalog();
@@ -202,6 +202,7 @@ const BOX_IMAGES = {
   "紅烏龍茶梅酒（700ml）": "assets/promo-hongwulong.jpg?v=2",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
   "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1111.jpg?v=1", // 2026-11 雙11
+  "加價購｜香米梅酒（250ml）": "assets/gift-ricewine.png?v=1", // 2026-11 加價購（同滿5000贈品圖）
   "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1", // 暫售 v3；賣完換回 "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1"
 };
 // 大圖（整張置頂）——最新活動用
@@ -367,6 +368,18 @@ function mixBoxBlock() {
   </div>`;
 }
 
+// 加價購（後端 ADDON 控制；任一消費即可加購、每單限 max 瓶，金額計入滿額贈）
+// 不收合、固定放在商品清單最下方（緊貼「合計」上方）；圖沿用 BOX_IMAGES
+function addonCard(a) {
+  return `<div class="addon-card">
+    <div class="addon-title">➕ 加價購 <span class="addon-hint">任一消費即可加購，每單限 ${a.max} 瓶</span></div>
+    <div class="catalog-row" data-kind="box" data-name="${esc(a.name)}" data-spec="" data-pd="${a.pd ?? ""}" data-addon="1">
+      ${boxThumbHTML(a.name)}<div class="cr-info"><div class="cr-name">${esc(a.name)}</div><div class="cr-price">${priceInline(a.po, a.pd)}</div></div>
+      ${stepperHTML("", "", a.max)}
+    </div>
+  </div>`;
+}
+
 function buildCatalog() {
   const sec = (key, title, inner) => `
     <div class="cat-section" data-cat="${key}">
@@ -379,7 +392,8 @@ function buildCatalog() {
     (products.promos.length ? sec("promos", "🎉 最新活動", promoRows()) : "") +
     sec("large", "大瓶 700ml", products.large.map((b) => bottleRow(b, "700ml", false)).join("")) +
     sec("small", "小瓶 250ml／300ml", products.small.map((b) => bottleRow(b, b.spec + "散裝", true)).join("")) +
-    sec("box", "禮盒組", boxRows());
+    sec("box", "禮盒組", boxRows()) +
+    (products.addon ? addonCard(products.addon) : "");
   updateCartTotal();
   updateCatBadges();
 }
@@ -462,7 +476,7 @@ $("#catalog").addEventListener("click", (e) => {
   if (btn.classList.contains("plus")) {
     if (panel) {
       if (mixTotal(panel) < 6) v++;
-    } else v = Math.min(999, v + 1);
+    } else v = Math.min(Number(inp.max) || 999, v + 1);
   } else v = Math.max(0, v - 1);
   inp.value = v;
   if (panel) updateMixCounter(panel);
@@ -671,6 +685,14 @@ $("#orderForm").addEventListener("submit", async (e) => {
       missing.push(`${pairRows[0].dataset.name}需以 ${unit} 瓶為一組（目前 ${n} 瓶）`);
       if (!firstBad) firstBad = box;
     }
+  }
+
+  // 加價購：須搭配任一其他商品
+  const addonRowEl = document.querySelector('#catalog .catalog-row[data-addon]');
+  if (addonRowEl && items.length && items.every((it) => it.name === addonRowEl.dataset.name)) {
+    $("#itemsField").classList.add("invalid");
+    missing.push("加價購需搭配任一商品一起訂購");
+    if (!firstBad) firstBad = addonRowEl;
   }
 
   if (!ageConfirmed) flag($("#age"), "勾選「我已年滿 18 歲」");

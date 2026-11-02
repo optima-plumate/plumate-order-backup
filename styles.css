@@ -708,3 +708,8 @@ textarea { resize: vertical; }
   text-decoration: none;
 }
 .backup-bar .bb-cta:hover { background: var(--gold-deep); }
+/* 加價購（固定展開，置於商品清單最下方） */
+.addon-card { margin-top: 12px; border: 1px solid #ecdcb6; border-radius: 14px; background: #fffaf0; padding: 12px 16px 4px; }
+.addon-title { font-size: 16px; font-weight: 600; color: var(--gold-deep); }
+.addon-hint { font-size: 13px; font-weight: 400; color: var(--mist); margin-left: 6px; }
+.addon-card .catalog-row { gap: 12px; }
