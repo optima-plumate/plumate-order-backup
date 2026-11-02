@@ -135,7 +135,7 @@ html, body {
 /* 主 banner 輪播 */
 .banner-carousel { position: relative; margin: 6px 0 20px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
 .bc-track { display: flex; transition: transform .5s ease; }
-.bc-slide { flex: 0 0 100%; width: 100%; height: auto; display: block; }
+.bc-slide { flex: 0 0 100%; width: 100%; height: auto; display: block; object-fit: cover; } /* 比例不同的圖（如獲獎圖 2160×1130）裁左右、不拉伸 */
 .bc-dots { position: absolute; left: 0; right: 0; bottom: 9px; display: flex; gap: 7px; justify-content: center; }
 .bc-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 3px rgba(0,0,0,.35); cursor: pointer; transition: width .25s, background .25s; }
 .bc-dot.active { width: 20px; border-radius: 4px; background: #fff; }
