@@ -201,6 +201,7 @@ const BOX_IMAGES = {
   "《奔馬》典藏禮盒": "assets/banner-benma-2609.jpg?v=1",
   "紅烏龍茶梅酒（700ml）": "assets/promo-hongwulong.jpg?v=2",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
+  "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1111.jpg?v=1", // 2026-11 雙11
   "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1", // 暫售 v3；賣完換回 "250ml 精選6入獲獎組_v2": "assets/box-six-v2.webp?v=1"
 };
 // 大圖（整張置頂）——最新活動用
@@ -218,11 +219,14 @@ function boxThumbHTML(name) {
 
 // 口味2選1禮盒：一張盒卡 + 每口味各自數量鈕。每個口味列本身即標準 .catalog-row（帶 data-flavor），
 // 故購物車小計／已選徽章／驗證全部沿用現有機制；唯一特別處是收單時多帶 flavor（見 collectItems）。
+// 雙瓶組合（kind=pair）：同一張卡，每列＝單瓶（data-pd＝組合價/unit），總瓶數須為 unit 的倍數（送出時驗）。
 function flavorBoxHTML(b, label, saveHTML, photo = "", headThumb = "") {
+  const pair = b.kind === "pair";
+  const rowPd = pair ? b.pd / b.unit : b.pd;
   const rows = b.flavors
     .map(
-      (fv) => `<div class="catalog-row flavor-row" data-kind="box" data-name="${esc(label)}" data-flavor="${esc(fv)}" data-spec="" data-pd="${b.pd ?? ""}">
-        <div class="cr-info"><div class="cr-name">・${esc(fv)}款</div></div>
+      (fv) => `<div class="catalog-row flavor-row" data-kind="box" data-name="${esc(label)}" data-flavor="${esc(fv)}" data-spec="" data-pd="${rowPd ?? ""}"${pair ? ` data-pair="${b.unit}"` : ""}>
+        <div class="cr-info"><div class="cr-name">・${esc(fv)}${pair ? "" : "款"}</div></div>
         ${stepperHTML()}
       </div>`,
     )
@@ -230,8 +234,8 @@ function flavorBoxHTML(b, label, saveHTML, photo = "", headThumb = "") {
   const desc = b.desc ? `<div class="box-desc"><b>內含：</b>${esc(b.desc)}</div>` : "";
   return `<div class="flavor-box">
     ${photo}
-    <div class="flavor-box-head">${headThumb}<div class="cr-info"><div class="cr-name">${esc(label)}${saveHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div></div>
-    <div class="fixed6-box">${desc}<div class="mix-hint">請選擇口味（可分別填數量）</div>${rows}</div>
+    <div class="flavor-box-head">${headThumb}<div class="cr-info"><div class="cr-name">${esc(label)}${saveHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}${pair ? ` ／ ${b.unit} 瓶` : ""}</div></div></div>
+    <div class="fixed6-box">${desc}<div class="mix-hint">${pair ? `${b.unit} 瓶為一組，兩款可任意搭配（總瓶數需為 ${b.unit} 的倍數）` : "請選擇口味（可分別填數量）"}</div>${rows}</div>
   </div>`;
 }
 
@@ -655,6 +659,20 @@ $("#orderForm").addEventListener("submit", async (e) => {
     }
   }
 
+  // 雙瓶組合：總瓶數須為 unit 的倍數
+  const pairRows = [...document.querySelectorAll("#catalog .catalog-row[data-pair]")];
+  if (pairRows.length) {
+    const unit = Number(pairRows[0].dataset.pair);
+    const n = pairRows.reduce((s, r) => s + (parseInt(r.querySelector(".qty-input").value, 10) || 0), 0);
+    if (n % unit !== 0) {
+      const box = pairRows[0].closest(".flavor-box");
+      box.classList.add("invalid");
+      $("#itemsField").classList.add("invalid");
+      missing.push(`${pairRows[0].dataset.name}需以 ${unit} 瓶為一組（目前 ${n} 瓶）`);
+      if (!firstBad) firstBad = box;
+    }
+  }
+
   if (!ageConfirmed) flag($("#age"), "勾選「我已年滿 18 歲」");
 
   if (missing.length) {
@@ -730,7 +748,7 @@ function clearInvalid() {
 }
 function clearItemsInvalid() {
   $("#itemsField").classList.remove("invalid");
-  document.querySelectorAll("#catalog .mix-panel").forEach((p) => p.classList.remove("invalid"));
+  document.querySelectorAll("#catalog .mix-panel, #catalog .flavor-box").forEach((p) => p.classList.remove("invalid"));
   if (!document.querySelector("#orderForm .invalid")) showError("");
 }
 $("#orderForm").addEventListener("input", onFieldFix);
