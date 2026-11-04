@@ -163,7 +163,7 @@ function showBackupFallback() {
     `<div class="bb-msg">目前系統暫時無法載入，為免耽誤您的訂購，請改用<strong>備援訂購單</strong>填寫，專人會盡快與您聯繫。</div>` +
     `<a class="bb-cta" href="${BACKUP_FORM_URL}" target="_blank" rel="noopener noreferrer">前往備援訂購單 →</a>`;
   if ($("#orderForm")) $("#orderForm").style.display = "none";
-  document.querySelectorAll(".hero-desc, .notice-pill, #bannerCarousel").forEach((el) => (el.style.display = "none"));
+  document.querySelectorAll(".hero-desc, .notice-pill, #bannerCarousel, .expo-ticket-cta").forEach((el) => (el.style.display = "none"));
 }
 
 /* ---------- 目錄（三類可展開、每項數量 +/-） ---------- */
@@ -440,7 +440,7 @@ function applyGroupUI() {
     bar.innerHTML = `<div class="gb-title">🛒 ${nameTitle}</div><div class="gb-locked">${msg}</div>${cta}`;
     if ($("#orderForm")) $("#orderForm").style.display = "none";
     // 收起會誤導的主視覺（「請填寫商品…」）與商品輪播
-    document.querySelectorAll(".hero-desc, .notice-pill, #bannerCarousel").forEach((el) => (el.style.display = "none"));
+    document.querySelectorAll(".hero-desc, .notice-pill, #bannerCarousel, .expo-ticket-cta").forEach((el) => (el.style.display = "none"));
   }
 }
 

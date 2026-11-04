@@ -138,6 +138,8 @@ html, body {
 .bc-slide { flex: 0 0 100%; width: 100%; height: auto; display: block; object-fit: cover; } /* 比例不同的圖（如獲獎圖 2160×1130）裁左右、不拉伸 */
 a.bc-slide img { width: 100%; height: auto; display: block; }
 .bc-dots { position: absolute; left: 0; right: 0; bottom: 11%; display: flex; gap: 7px; justify-content: center; } /* 浮在 banner 底部警語條之上，不可蓋到警語（條高約 8.7%） */
+.expo-ticket-cta { display: block; margin: -8px 0 20px; padding: 12px 14px; border-radius: 12px; background: var(--ink-green); color: #fff; font-size: 16px; font-weight: 700; line-height: 1.4; text-align: center; text-decoration: none; }
+.expo-ticket-cta:hover { background: var(--ink-green-2); }
 .bc-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 3px rgba(0,0,0,.35); cursor: pointer; transition: width .25s, background .25s; }
 .bc-dot.active { width: 20px; border-radius: 4px; background: #fff; }
 .tagline {
