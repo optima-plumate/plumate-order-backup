@@ -201,7 +201,7 @@ const BOX_IMAGES = {
   "《奔馬》典藏禮盒": "assets/banner-benma-2609.jpg?v=1",
   "紅烏龍茶梅酒（700ml）": "assets/promo-hongwulong.jpg?v=2",
   "長流-梅侍聯名禮盒": "assets/box-shuangma.webp?v=1",
-  "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1111.jpg?v=1", // 2026-11 雙11
+  "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1118.jpg?v=1", // 2026-11-18 改「年終獻禮」（原雙11 圖 promo-horse-pair-1111.jpg）
   "加價購｜香米梅酒（250ml）": "assets/gift-ricewine.png?v=1", // 2026-11 加價購（同滿5000贈品圖）
   "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1",
 };
