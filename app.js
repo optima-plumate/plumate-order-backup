@@ -167,12 +167,12 @@ function showBackupFallback() {
 }
 
 /* ---------- 目錄（三類可展開、每項數量 +/-） ---------- */
-function priceInline(po, pd) {
+function priceInline(po, pd, tag = "優惠") {
   po = po ? Number(po) : null;
   pd = pd ? Number(pd) : null;
   if (!po && !pd) return "";
   if (po && pd && po !== pd)
-    return `<span class="pl-orig">${money(po)}</span><span class="pl-disc">優惠 ${money(pd)}</span>`;
+    return `<span class="pl-orig">${money(po)}</span><span class="pl-disc">${esc(tag)} ${money(pd)}</span>`;
   return `<span class="pl-disc">${money(pd || po)}</span>`;
 }
 
@@ -190,7 +190,7 @@ function bottleRow(b, specLabel, showSpec) {
   const notice = stockNotice(b.name, b.spec);
   const noticeHTML = notice ? ` <span class="stock-notice">${esc(notice)}</span>` : "";
   return `<div class="catalog-row" data-kind="bottle" data-name="${esc(b.name)}" data-spec="${esc(specLabel)}" data-pd="${b.pd ?? ""}">
-    <div class="cr-info"><div class="cr-name">${esc(nm)}${noticeHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
+    <div class="cr-info"><div class="cr-name">${esc(nm)}${noticeHTML}</div><div class="cr-price">${priceInline(b.po, b.pd, b.tag)}</div></div>
     ${stepperHTML()}
   </div>`;
 }
