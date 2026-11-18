@@ -204,6 +204,7 @@ const BOX_IMAGES = {
   "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1118.jpg?v=1", // 2026-11-18 改「年終獻禮」（原雙11 圖 promo-horse-pair-1111.jpg）
   "加價購｜香米梅酒（250ml）": "assets/gift-ricewine.png?v=1", // 2026-11 加價購（同滿5000贈品圖）
   "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1",
+  "大湖草莓梅酒（700ml）": "assets/promo-strawberry-1118.jpg?v=1", // 2026-11-18 最新活動第二主推
 };
 // 大圖（整張置頂）——最新活動用
 function boxPhotoHTML(name) {
@@ -278,9 +279,10 @@ function promoRows() {
     }
     html += boxPhotoHTML(b.name);
     html += `<div class="catalog-row" data-kind="box" data-name="${esc(label)}" data-spec="" data-pd="${b.pd ?? ""}">
-      <div class="cr-info"><div class="cr-name">${esc(label)}${save}</div><div class="cr-price">${priceInline(b.po, b.pd)}</div></div>
+      <div class="cr-info"><div class="cr-name">${esc(label)}${save}</div><div class="cr-price">${priceInline(b.po, b.pd, b.tag)}</div></div>
       ${stepperHTML()}
     </div>`;
+    if (b.note) html += `<div class="fixed6-box"><div class="box-desc"><b>風味：</b>${esc(b.note)}</div></div>`;
     if (b.kind === "fixed6" && (b.contents || []).length)
       html += `<div class="fixed6-box"><div class="mix-hint">固定內含以下 6 款（不可更換）</div>${b.contents
         .map((n) => `<div class="fixed6-row">・${esc(n)}</div>`)
