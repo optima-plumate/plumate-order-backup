@@ -204,7 +204,7 @@ const BOX_IMAGES = {
   "雙馬／奔馬聯名款 雙瓶組合": "assets/promo-horse-pair-1118.jpg?v=1", // 2026-11-18 改「年終獻禮」（原雙11 圖 promo-horse-pair-1111.jpg）
   "加價購｜香米梅酒（250ml）": "assets/gift-ricewine.png?v=1", // 2026-11 加價購（同滿5000贈品圖）
   "250ml 精選6入獲獎組_v3": "assets/box-six-v3.webp?v=1",
-  "大湖草莓梅酒（700ml）": "assets/promo-strawberry-v2-1118.jpg?v=1", // 2026-11-18 最新活動第二主推（設計版；印 $950，12/1 要換）
+  "大湖草莓梅酒（700ml）": "assets/promo-strawberry-v3-1118.jpg?v=1", // 2026-11-18 最新活動第二主推（設計版 v3 加「季節限定」；印 $950，12/1 要換）
 };
 // 大圖（整張置頂）——最新活動用
 function boxPhotoHTML(name) {
