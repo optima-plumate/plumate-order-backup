@@ -7,7 +7,7 @@
   --ink-green-2: #2c4438;
   --rice:        #f6f1e6;   /* 米白 */
   --rice-2:      #fbf8f1;
-  --mist:        #9a968b;   /* 霧灰 */
+  --mist:        #6b675e;   /* 霧灰（2026-11-26 Howl 要求加深，原 #9a968b） */
   --clay:        #9c5f3c;   /* 陶土棕 */
   --line:        #e3dccc;
   --shadow:      0 10px 40px rgba(32, 52, 43, .10);
@@ -273,6 +273,7 @@ textarea { resize: vertical; }
   box-shadow: 0 0 0 3px rgba(192, 87, 62, .12);
 }
 .mix-hint { font-size: 13px; color: var(--mist); margin-bottom: 6px; }
+.nobox-note { font-size: 13px; color: var(--clay); font-weight: 500; margin-bottom: 6px; } /* 裸瓶提示，比 mix-hint 深 */
 .mix-row {
   display: flex;
   align-items: center;
@@ -658,7 +659,7 @@ textarea { resize: vertical; }
 .group-bar .gb-locked {
   margin-top: 8px;
   font-size: .95em;
-  color: #8a8275;
+  color: var(--mist);
   line-height: 1.7;
 }
 .group-bar .gb-cta {

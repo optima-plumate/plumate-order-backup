@@ -74,6 +74,10 @@ let products = { promos: [], large: [], small: [], boxes: [] };
 // 用完/補貨後記得移除，否則會一直顯示過期日期
 const STOCK_NOTICES = [
 ];
+// 裸瓶（無紙盒）提示：限量聯名款單瓶與雙瓶組合都會顯示（Howl 2026-11-26）
+const NO_BOX = new Set(["雙馬聯名款｜東方美人茶梅酒", "奔馬聯名款｜凍頂烏龍茶梅酒"]);
+const NO_BOX_NOTE = "※ 限量聯名款為特殊酒款，不附紙盒，以原瓶出貨。";
+const noBoxHTML = (names) => (names.some((n) => NO_BOX.has(n)) ? `<div class="nobox-note">${NO_BOX_NOTE}</div>` : "");
 const stockNotice = (name, spec) =>
   STOCK_NOTICES.find((s) => s.name === name && s.spec === spec)?.badge || null;
 
@@ -190,7 +194,7 @@ function bottleRow(b, specLabel, showSpec) {
   const notice = stockNotice(b.name, b.spec);
   const noticeHTML = notice ? ` <span class="stock-notice">${esc(notice)}</span>` : "";
   return `<div class="catalog-row" data-kind="bottle" data-name="${esc(b.name)}" data-spec="${esc(specLabel)}" data-pd="${b.pd ?? ""}">
-    <div class="cr-info"><div class="cr-name">${esc(nm)}${noticeHTML}</div><div class="cr-price">${priceInline(b.po, b.pd, b.tag)}</div></div>
+    <div class="cr-info"><div class="cr-name">${esc(nm)}${noticeHTML}</div><div class="cr-price">${priceInline(b.po, b.pd, b.tag)}</div>${noBoxHTML([b.name])}</div>
     ${stepperHTML()}
   </div>`;
 }
@@ -237,7 +241,7 @@ function flavorBoxHTML(b, label, saveHTML, photo = "", headThumb = "") {
   return `<div class="flavor-box">
     ${photo}
     <div class="flavor-box-head">${headThumb}<div class="cr-info"><div class="cr-name">${esc(label)}${saveHTML}</div><div class="cr-price">${priceInline(b.po, b.pd)}${pair ? ` ／ ${b.unit} 瓶` : ""}</div></div></div>
-    <div class="fixed6-box">${desc}<div class="mix-hint">${pair ? `${b.unit} 瓶為一組，兩款可任意搭配（總瓶數需為 ${b.unit} 的倍數）` : "請選擇口味（可分別填數量）"}</div>${rows}</div>
+    <div class="fixed6-box">${desc}<div class="mix-hint">${pair ? `${b.unit} 瓶為一組，兩款可任意搭配（總瓶數需為 ${b.unit} 的倍數）` : "請選擇口味（可分別填數量）"}</div>${noBoxHTML(b.flavors)}${rows}</div>
   </div>`;
 }
 
