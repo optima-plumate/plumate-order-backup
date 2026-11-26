@@ -387,15 +387,15 @@ function addonCard(a) {
 }
 
 function buildCatalog() {
-  const sec = (key, title, inner) => `
-    <div class="cat-section" data-cat="${key}">
+  const sec = (key, title, inner, open = false) => `
+    <div class="cat-section${open ? " open" : ""}" data-cat="${key}">
       <button type="button" class="cat-header">
         <span class="cat-title">${title}</span><span class="cat-badge"></span><span class="cat-arrow">▸</span>
       </button>
-      <div class="cat-body hidden">${inner}</div>
+      <div class="cat-body${open ? "" : " hidden"}">${inner}</div>
     </div>`;
   $("#catalog").innerHTML =
-    (products.promos.length ? sec("promos", "🎉 最新活動", promoRows()) : "") +
+    (products.promos.length ? sec("promos", "🎉 最新活動", promoRows(), true) /* 預設展開（Howl 2026-11-26：客人常沒點開） */ : "") +
     sec("large", "大瓶 700ml", products.large.map((b) => bottleRow(b, "700ml", false)).join("")) +
     sec("small", "小瓶 250ml／300ml", products.small.map((b) => bottleRow(b, b.spec + "散裝", true)).join("")) +
     sec("box", "禮盒組", boxRows()) +
